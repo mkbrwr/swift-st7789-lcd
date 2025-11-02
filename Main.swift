@@ -18,25 +18,15 @@ func spi_init() {
 
     gpio_init(PIN_CS)
     gpio_set_dir(PIN_CS, true)
-    gpio_put(PIN_CS, true)  // CS high (inactive)
+    gpio_put(PIN_CS, true)
 
     gpio_init(PIN_DC)
     gpio_set_dir(PIN_DC, true)
-    gpio_put(PIN_DC, true)  // Data mode by default
+    gpio_put(PIN_DC, true)
 
     gpio_init(PIN_RESET)
     gpio_set_dir(PIN_RESET, true)
-    gpio_put(PIN_RESET, true)  // Reset inactive
-
-    //      gpio_init(PIN_BL);
-    //      gpio_set_dir(PIN_BL, true);
-    //      gpio_put(PIN_BL, true);  // Backlight on
-
-    //      // Reset sequence (if needed for display)
-    //      gpio_put(PIN_RESET, false);
-    //      sleep_ms(10);
-    //      gpio_put(PIN_RESET, true);
-    sleep_ms(10)
+    gpio_put(PIN_RESET, true)
 }
 
 func lcd_init() {
@@ -78,8 +68,7 @@ func lcd_set_dc_cs(_ dc: Bool, _ cs: Bool) {
 
 func lcd_write_cmd(_ cmd: [UInt8], _ count: UInt8) {
     st7789_lcd_wait_idle()
-
-    gpio_get(uint)
+    
     lcd_set_dc_cs(false, false)
     st7789_lcd_put(cmd[0])
 

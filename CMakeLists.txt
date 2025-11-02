@@ -100,6 +100,8 @@ target_compile_options(swift-st7789-lcd PUBLIC
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:
         -target ${SWIFT_TARGET}
         -enable-experimental-feature Embedded
+        -g
+        -Onone
         -parse-as-library
         -module-name swift_blinky
         
