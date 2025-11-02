@@ -5,8 +5,8 @@ let PIN_DC: UInt32 = 21
 let PIN_RESET: UInt32 = 20
 let PIN_BL: UInt32 = 16
 
-let SCREEN_WIDTH: UInt8 = 240
-let SCREEN_HEIGHT: UInt8 = 240
+let SCREEN_WIDTH: UInt16 = 240
+let SCREEN_HEIGHT: UInt16 = 300
 
 func spi_init() {
     spi_init(spi0, 80 * 1000 * 1000)
@@ -35,8 +35,8 @@ func lcd_init() {
         1, 10, 0x11,  // Exit sleep mode
         2, 2, 0x3a, 0x55,  // Set colour mode to 16 bit
         2, 0, 0x36, 0x00,  // Set MADCTL: row then column, refresh is bottom to top ????
-        5, 0, 0x2a, 0x00, 0x00, SCREEN_WIDTH >> 8, SCREEN_WIDTH & 0xff,  // CASET: column addresses
-        5, 0, 0x2b, 0x00, 0x00, SCREEN_HEIGHT >> 8, SCREEN_HEIGHT & 0xff,  // RASET: row addresses
+        5, 0, 0x2a, 0x00, 0x00, UInt8(SCREEN_WIDTH >> 8), UInt8(SCREEN_WIDTH & 0xff),  // CASET: column addresses
+        5, 0, 0x2b, 0x00, 0x00, UInt8(SCREEN_HEIGHT >> 8), UInt8(SCREEN_HEIGHT & 0xff),  // RASET: row addresses
         1, 2, 0x21,  // Inversion on, then 10 ms delay (supposedly a hack?)
         1, 2, 0x13,  // Normal display on, then 10 ms delay
         1, 2, 0x29,  // Main screen turn on, then wait 500 ms
@@ -138,11 +138,13 @@ struct Main {
         while true {
             st7789_start_pixels()
             let fill = UInt8.random(in: 0...255)
-            for x in 0..<Int(SCREEN_WIDTH) {
-                for y in 0..<Int(SCREEN_HEIGHT) {
-                    //          RGBA
-                    if x == y {
-                        st7789_lcd_put(0b0000_0000)
+            for y in 0..<Int(SCREEN_HEIGHT) {
+                for x in 0..<Int(SCREEN_WIDTH) {
+                    // Calculate diagonal: for a 240x300 screen, diagonal goes from (0,0) to (240,300)
+                    let diagonalX = (y * Int(SCREEN_WIDTH)) / Int(SCREEN_HEIGHT)
+                    let lineThickness = 3 // pixels
+                    if abs(x - diagonalX) < lineThickness {
+                        st7789_lcd_put(0b1111_1111)
                         st7789_lcd_put(0b1111_1111)
                     } else {
                         st7789_lcd_put(fill)
