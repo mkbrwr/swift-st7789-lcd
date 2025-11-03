@@ -125,33 +125,18 @@ struct Main {
         gpio_set_dir(PIN_DC, true)
         gpio_set_dir(PIN_RESET, true)
         gpio_set_dir(PIN_BL, true)
+        let frameBuffer = UnsafeMutableBufferPointer<UInt16>.allocate(capacity: Int(SCREEN_WIDTH) * Int(SCREEN_HEIGHT))
+        frameBuffer.initialize(repeating: 0)
 
         gpio_put(PIN_CS, true)
         gpio_put(PIN_RESET, true)
         spi_init()
-        while spi_is_busy(spi0) {
-
-        }
         lcd_init()
         gpio_put(PIN_BL, true)
 
         while true {
-            st7789_start_pixels()
-            let fill = UInt8.random(in: 0...255)
-            for y in 0..<Int(SCREEN_HEIGHT) {
-                for x in 0..<Int(SCREEN_WIDTH) {
-                    // Calculate diagonal: for a 240x300 screen, diagonal goes from (0,0) to (240,300)
-                    let diagonalX = (y * Int(SCREEN_WIDTH)) / Int(SCREEN_HEIGHT)
-                    let lineThickness = 3 // pixels
-                    if abs(x - diagonalX) < lineThickness {
-                        st7789_lcd_put(0b1111_1111)
-                        st7789_lcd_put(0b1111_1111)
-                    } else {
-                        st7789_lcd_put(fill)
-                        st7789_lcd_put(0b1111_1111)
-                    }
-                }
-            }
+            prepareImage(frameBuffer)
+            draw(frameBuffer)
         }
 
         while true {
@@ -160,5 +145,42 @@ struct Main {
             gpio_put(led, false)
             sleep_ms(250)
         }
+    }
+}
+
+func prepareImage(_ buffer: UnsafeMutableBufferPointer<UInt16>) {
+    let fill = UInt8.random(in: 0...255)
+    for y in 0..<Int(SCREEN_HEIGHT) {
+        for x in 0..<Int(SCREEN_WIDTH) {
+            let diagonalX = (y * Int(SCREEN_WIDTH)) / Int(SCREEN_HEIGHT)
+            let lineThickness = 3 // pixels
+            if abs(x - diagonalX) < lineThickness {
+                buffer[y * Int(SCREEN_WIDTH) + x] = UInt16(rg: 0xff, ba: 0xff)
+            } else {
+                buffer[y * Int(SCREEN_WIDTH) + x] = UInt16(rg: fill, ba: 0xff)
+            }
+        }
+    }
+}
+
+func draw(_ buffer: UnsafeMutableBufferPointer<UInt16>) {
+    st7789_start_pixels()
+    for pixel in buffer {
+        st7789_lcd_put(pixel.rg)
+        st7789_lcd_put(pixel.ba)
+    }
+}
+
+extension UInt16 {
+    init(rg: UInt8, ba: UInt8) {
+        self = (UInt16(rg) << 8) | UInt16(ba)
+    }
+    
+    var rg: UInt8 {
+        UInt8((self >> 8) & 0xff)
+    }
+    
+    var ba: UInt8 {
+        UInt8(self & 0xff)
     }
 }
