@@ -26,6 +26,9 @@ endif()
 add_executable(swift-st7789-lcd
     # Source files:
     Main.swift
+    ST7789LCD.swift
+    CHIP8.swift
+    
     Support.c
 )
 
