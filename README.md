@@ -1,3 +1,8 @@
+## Demo
+
+https://github.com/user-attachments/assets/056edc77-64eb-46b6-827e-fc041e140199
+
+
 ## Requirements
 
 - A Raspberry Pi Pico (non-W) board. 
