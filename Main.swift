@@ -6,7 +6,6 @@ struct Main {
         gpio_init(led)
         gpio_set_dir(led, true)
         
-        let chip8 = CHIP8()
         
         let frameBuffer = UnsafeMutableBufferPointer<UInt16>.allocate(capacity: Int(ST7789LCD.SCREEN_WIDTH) * Int(ST7789LCD.SCREEN_HEIGHT))
         frameBuffer.initialize(repeating: 0)
@@ -30,12 +29,15 @@ func prepareImage(_ buffer: UnsafeMutableBufferPointer<UInt16>) {
     let fill = UInt8.random(in: 0...255)
     for y in 0..<Int(ST7789LCD.SCREEN_HEIGHT) {
         for x in 0..<Int(ST7789LCD.SCREEN_WIDTH) {
-            let diagonalX = (y * Int(ST7789LCD.SCREEN_WIDTH)) / Int(ST7789LCD.SCREEN_HEIGHT)
-            let lineThickness = 5 // pixels
-            if abs(x - diagonalX) < lineThickness {
-                buffer[y * Int(ST7789LCD.SCREEN_WIDTH) + x] = UInt16(rg: 0xff, ba: 0xff)
+            let bufferIdx = y * Int(ST7789LCD.SCREEN_WIDTH) + x
+            if (y > 80) && (y < 113 + 80) && (x > 60) && (x < 120 + 60) {
+                let imageIdx = ((y - 80) * 120 + (x - 60)) * 3
+                let r = swift_image_data_at(UInt32(imageIdx))
+                let g = swift_image_data_at(UInt32(imageIdx + 1))
+                let b = swift_image_data_at(UInt32(imageIdx + 2))
+                buffer[bufferIdx] = .init(rgb888: (r, g, b))
             } else {
-                buffer[y * Int(ST7789LCD.SCREEN_WIDTH) + x] = UInt16(rg: fill, ba: 0xff)
+                buffer[bufferIdx] = .init(rgb888: (fill, fill, fill))
             }
         }
     }
@@ -43,6 +45,15 @@ func prepareImage(_ buffer: UnsafeMutableBufferPointer<UInt16>) {
 
 
 extension UInt16 {
+    // RGB888 to RGB565
+    init(rgb888: (r: UInt8, g: UInt8, b: UInt8)) {
+        let r5 = UInt16(rgb888.r >> 3) << 11
+        let g6 = UInt16(rgb888.g >> 2) << 5
+        let b5 = UInt16(rgb888.b >> 3)
+        let packed: UInt16 = r5 | g6 | b5
+        self = packed
+    }
+    
     init(rg: UInt8, ba: UInt8) {
         self = (UInt16(rg) << 8) | UInt16(ba)
     }

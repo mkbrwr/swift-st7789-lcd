@@ -27,9 +27,10 @@ add_executable(swift-st7789-lcd
     # Source files:
     Main.swift
     ST7789LCD.swift
-    CHIP8.swift
-    
     Support.c
+    
+    # Resources:
+    swift_logo.c
 )
 
 set_target_properties(swift-st7789-lcd PROPERTIES LINKER_LANGUAGE CXX)
