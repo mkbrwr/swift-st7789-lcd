@@ -5,7 +5,7 @@ https://github.com/user-attachments/assets/056edc77-64eb-46b6-827e-fc041e140199
 
 ## Requirements
 
-- A Raspberry Pi Pico (non-W) board. 
+- A Raspberry Pi Pico 2 (non-W) board. 
 - Follow the setup steps at https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf, in particular you'll need:
   - A checkout of the [pico-sdk](https://github.com/raspberrypi/pico-sdk.git), with git submodules checked out. If you'd like to try RISC-V support for RP2350, you'll need Pico SDK 2.1.0 or later.
   - A checkout of the [pico-examples](https://github.com/raspberrypi/pico-examples.git).
@@ -21,12 +21,11 @@ https://github.com/user-attachments/assets/056edc77-64eb-46b6-827e-fc041e140199
 - Build and copy the program in the UF2 format to the Mass Storage device to trigger flashing the program into memory (after which the device will reboot and run the firmware):
 
 ``` console
-$ cd rpi-pico-blink-sdk
 $ export PICO_BOARD='<board-name>' # Examples: pico, pico2
 $ export PICO_PLATFORM='<optional-platform-name>' # Optional; useful if you'd like to compile for RISC-V. Examples: rp2040, rp2350-arm-s, rp2350-riscv 
 $ export PICO_SDK_PATH='<path-to-your-pico-sdk>'
 $ export PICO_TOOLCHAIN_PATH='<path-to-the-compiler-toolchain>' # A default `brew` install will be located at `/Applications/ArmGNUToolchain/[version]/arm-none-eabi`. This can also be a RISC-V toolchain for the RP2350.
-$ cmake -B build -G Ninja . -DCMAKE_EXPORT_COMPILE_COMMANDS=On
+$ cmake -B build -G Ninja . -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
 $ cmake --build build
 ```
 

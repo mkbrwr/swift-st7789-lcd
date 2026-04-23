@@ -27,7 +27,7 @@ add_executable(swift-st7789-lcd
     # Source files:
     Main.swift
     ST7789LCD.swift
-    Support.c
+    Support.swift
     
     # Resources:
     swift_logo.c
